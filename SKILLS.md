@@ -6,19 +6,12 @@ Skills are reusable workflows that guide Claude through tasks with battle-tested
 
 Skills must be installed manually to receive updates from the source repository.
 
-Add to `.claude/settings.json`:
-
-```json
-{
-  "plugins": [
-    {
-      "name": "superpowers",
-      "url": "https://github.com/obra/superpowers",
-      "enabled": true
-    }
-  ]
-}
+```bash
+/plugin marketplace add obra/superpowers-marketplace
+/plugin install superpowers@superpowers-marketplace
 ```
+
+Source: https://github.com/obra/superpowers
 
 **Note**: Unlike commands (which are copied), plugins are fetched from their source URL and updated automatically.
 
