@@ -26,17 +26,14 @@ echo ""
 # Create .claude/commands directory
 mkdir -p "$CLAUDE_DIR/commands"
 
-# Symlink command categories
+# Copy command categories
 for category in git pr quality workflow; do
   if [ -d "$REPO_DIR/commands/$category" ]; then
-    if [ -L "$CLAUDE_DIR/commands/$category" ]; then
-      rm "$CLAUDE_DIR/commands/$category"
-    elif [ -d "$CLAUDE_DIR/commands/$category" ]; then
-      echo "  Warning: $category exists as directory, skipping"
-      continue
+    if [ -d "$CLAUDE_DIR/commands/$category" ]; then
+      rm -rf "$CLAUDE_DIR/commands/$category"
     fi
-    ln -sf "$REPO_DIR/commands/$category" "$CLAUDE_DIR/commands/$category"
-    echo "  Linked commands/$category"
+    cp -R "$REPO_DIR/commands/$category" "$CLAUDE_DIR/commands/$category"
+    echo "  Copied commands/$category"
   fi
 done
 
