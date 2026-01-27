@@ -29,19 +29,20 @@ git clone <repo-url> ~/.claude-config
 ## Contents
 
 ```
-commands/          # 20 commands - see COMMANDS.md
+commands/          # 20 commands
 ├── git/           # catchup, commit, sync, cleanup, push/pull
 ├── pr/            # checks, create, merge, review
 ├── quality/       # quick-fix, find-large-files, simplify
 └── workflow/      # task-declarative
 
-skills/            # Custom skills - see SKILLS.md
+skills/            # Custom skills
 config/            # Settings (config.json, settings.json)
-scripts/           # Status line, utilities
+scripts/           # Status line, git hooks, utilities
+docs/              # Documentation
 ```
 
-- [COMMANDS.md](COMMANDS.md) - Full commands reference
-- [SKILLS.md](SKILLS.md) - Superpowers skills guide
+- [docs/commands.md](docs/commands.md) - Full commands reference
+- [docs/skills.md](docs/skills.md) - Superpowers skills guide
 
 ## Git Hooks & Architecture Checks
 
@@ -71,7 +72,7 @@ TypeScript project hooks enforcing code quality and architecture patterns.
 ./scripts/git-hooks/pre-push
 ```
 
-See [docs/CHECKS.md](docs/CHECKS.md) for full documentation.
+See [docs/checks.md](docs/checks.md) for full documentation.
 
 ## Update
 
