@@ -4,9 +4,15 @@ Configuration for Claude Code workshops.
 
 ## Install
 
+**Global** (user-level):
 ```bash
 git clone <repo-url> ~/.claude-config
 ~/.claude-config/install.sh
+```
+
+**Project** (symlinks commands to a project):
+```bash
+~/.claude-config/scripts/project-install.sh /path/to/project
 ```
 
 ## Claude Code Extensibility
