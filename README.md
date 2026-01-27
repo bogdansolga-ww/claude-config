@@ -5,7 +5,7 @@ Configuration for Claude Code workshops.
 ## Install
 
 ```bash
-git clone git@github.com:bogdansolga-ww/claude-config.git ~/.claude-config
+git clone <repo-url> ~/.claude-config
 ~/.claude-config/install.sh
 ```
 
