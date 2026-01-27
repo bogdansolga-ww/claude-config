@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Pre-push hook for TypeScript projects
-# Runs type-check, lint, and tests in parallel
+# Runs type-check, lint, tests, and architecture checks in parallel
 # Bypass with: git push --no-verify
 
 set -e
@@ -25,7 +25,7 @@ fi
 
 # Detect package manager
 detect_pm() {
-    if [ -f "bun.lockb" ]; then echo "bun"
+    if [ -f "bun.lockb" ] || [ -f "bun.lock" ]; then echo "bun"
     elif [ -f "pnpm-lock.yaml" ]; then echo "pnpm"
     elif [ -f "yarn.lock" ]; then echo "yarn"
     else echo "npm"
@@ -44,13 +44,19 @@ TYPE_LOG=$(mktemp)
 LINT_LOG=$(mktemp)
 TEST_LOG=$(mktemp)
 SIZE_LOG=$(mktemp)
-cleanup() { rm -f "$TYPE_LOG" "$LINT_LOG" "$TEST_LOG" "$SIZE_LOG"; }
+ARCH_LOG=$(mktemp)
+SCHEMA_LOG=$(mktemp)
+DEEP_ARCH_LOG=$(mktemp)
+cleanup() { rm -f "$TYPE_LOG" "$LINT_LOG" "$TEST_LOG" "$SIZE_LOG" "$ARCH_LOG" "$SCHEMA_LOG" "$DEEP_ARCH_LOG"; }
 trap cleanup EXIT
 
 # Exit codes
 TYPE_EXIT=0
 LINT_EXIT=0
 TEST_EXIT=0
+ARCH_EXIT=0
+SCHEMA_EXIT=0
+DEEP_ARCH_EXIT=0
 
 # File size thresholds (lines)
 COMPONENT_LIMIT=400
@@ -109,6 +115,58 @@ else
     TEST_PID=""
 fi
 
+# Architecture check (background)
+if [ -f "./scripts/check-architecture.sh" ]; then
+    {
+        echo "[Architecture] Starting..."
+        if ./scripts/check-architecture.sh > "$ARCH_LOG" 2>&1; then
+            echo "[Architecture] ✓ Passed"
+        else
+            echo "[Architecture] x Failed"
+            exit 1
+        fi
+    } &
+    ARCH_PID=$!
+else
+    ARCH_PID=""
+fi
+
+# Schema check (background)
+if [ -f "./scripts/check-schemas.sh" ]; then
+    {
+        echo "[Schema] Starting..."
+        if ./scripts/check-schemas.sh > "$SCHEMA_LOG" 2>&1; then
+            echo "[Schema] ✓ Passed"
+        else
+            echo "[Schema] x Failed"
+            exit 1
+        fi
+    } &
+    SCHEMA_PID=$!
+else
+    SCHEMA_PID=""
+fi
+
+# Deep architecture check (background)
+if [ -f "./scripts/check-deep-architecture.sh" ]; then
+    {
+        echo "[Deep Arch] Starting..."
+        if ./scripts/check-deep-architecture.sh > "$DEEP_ARCH_LOG" 2>&1; then
+            echo "[Deep Arch] ✓ Passed"
+        else
+            if grep -q "error(s)" "$DEEP_ARCH_LOG"; then
+                echo "[Deep Arch] x Failed"
+                exit 1
+            else
+                echo "[Deep Arch] ✓ Passed (with warnings)"
+            fi
+        fi
+    } &
+    DEEP_ARCH_PID=$!
+else
+    DEEP_ARCH_PID=""
+fi
+
 # File size check (background, warning only)
 {
     VIOLATIONS=0
@@ -153,6 +211,9 @@ SIZE_PID=$!
 [ -n "$TYPE_PID" ] && { wait $TYPE_PID || TYPE_EXIT=1; }
 [ -n "$LINT_PID" ] && { wait $LINT_PID || LINT_EXIT=1; }
 [ -n "$TEST_PID" ] && { wait $TEST_PID || TEST_EXIT=1; }
+[ -n "$ARCH_PID" ] && { wait $ARCH_PID || ARCH_EXIT=1; }
+[ -n "$SCHEMA_PID" ] && { wait $SCHEMA_PID || SCHEMA_EXIT=1; }
+[ -n "$DEEP_ARCH_PID" ] && { wait $DEEP_ARCH_PID || DEEP_ARCH_EXIT=1; }
 wait $SIZE_PID
 
 echo ""
@@ -192,6 +253,36 @@ if [ -n "$TEST_PID" ]; then
     echo ""
 fi
 
+if [ -n "$ARCH_PID" ]; then
+    if [ $ARCH_EXIT -eq 0 ]; then
+        print_success "Architecture: Passed"
+    else
+        print_error "Architecture: Failed"
+        grep -v "^Checking\|^$" "$ARCH_LOG" | head -10 | sed 's/^/  /'
+    fi
+    echo ""
+fi
+
+if [ -n "$SCHEMA_PID" ]; then
+    if [ $SCHEMA_EXIT -eq 0 ]; then
+        print_success "Schema: Passed"
+    else
+        print_error "Schema: Failed"
+        grep -v "^Checking\|^$" "$SCHEMA_LOG" | head -10 | sed 's/^/  /'
+    fi
+    echo ""
+fi
+
+if [ -n "$DEEP_ARCH_PID" ]; then
+    if [ $DEEP_ARCH_EXIT -eq 0 ]; then
+        print_success "Deep Architecture: Passed"
+    else
+        print_error "Deep Architecture: Failed"
+        grep -E "^(✗|  -)" "$DEEP_ARCH_LOG" | head -10 | sed 's/^/  /'
+    fi
+    echo ""
+fi
+
 # File size warnings
 if [ -s "$SIZE_LOG" ]; then
     print_warning "File Size: Large files detected"
@@ -205,7 +296,7 @@ fi
 echo "----------------------------------------"
 
 # Final check
-if [ $TYPE_EXIT -ne 0 ] || [ $LINT_EXIT -ne 0 ] || [ $TEST_EXIT -ne 0 ]; then
+if [ $TYPE_EXIT -ne 0 ] || [ $LINT_EXIT -ne 0 ] || [ $TEST_EXIT -ne 0 ] || [ $ARCH_EXIT -ne 0 ] || [ $SCHEMA_EXIT -ne 0 ] || [ $DEEP_ARCH_EXIT -ne 0 ]; then
     print_error "Pre-push checks failed!"
     echo ""
     echo "Bypass with: git push --no-verify"

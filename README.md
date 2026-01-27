@@ -43,22 +43,35 @@ scripts/           # Status line, utilities
 - [COMMANDS.md](COMMANDS.md) - Full commands reference
 - [SKILLS.md](SKILLS.md) - Superpowers skills guide
 
-## Git Hooks
+## Git Hooks & Architecture Checks
 
-TypeScript project hooks for pre-commit (type-check, lint) and pre-push (+ tests, file size).
+TypeScript project hooks enforcing code quality and architecture patterns.
 
-**Install to a project:**
+| Check | Pre-commit | Pre-push |
+|-------|------------|----------|
+| Type Check | ✓ | ✓ |
+| Lint | ✓ | ✓ |
+| Tests | | ✓ |
+| Architecture Hierarchy | ✓ | ✓ |
+| Schema Location | ✓ | ✓ |
+| Deep Architecture | ✓ | ✓ |
+| File Size | | ✓ (warning) |
+
+**Integration options:**
+- **Git hooks** - automatic on commit/push (also when Claude does git ops)
+- **Claude Code hooks** - run during Claude sessions
+- **Manual** - execute scripts directly when needed
+
 ```bash
+# Install git hooks to a project
 ~/.claude-config/scripts/git-hooks/install.sh /path/to/project
+
+# Run standalone (without git)
+./scripts/git-hooks/pre-commit
+./scripts/git-hooks/pre-push
 ```
 
-**Run standalone** (without git, for CI or manual checks):
-```bash
-./scripts/git-hooks/pre-commit   # Type-check + lint
-./scripts/git-hooks/pre-push     # Full suite
-```
-
-Hooks auto-detect package manager (bun/pnpm/yarn/npm) and skip missing scripts.
+See [docs/CHECKS.md](docs/CHECKS.md) for full documentation.
 
 ## Update
 
