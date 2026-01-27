@@ -35,6 +35,12 @@ for category in git pr quality workflow; do
   fi
 done
 
+# Copy status line script
+mkdir -p "$CLAUDE_DIR/scripts"
+cp "$REPO_DIR/scripts/status-line.sh" "$CLAUDE_DIR/scripts/status-line.sh"
+chmod +x "$CLAUDE_DIR/scripts/status-line.sh"
+echo "  Copied scripts/status-line.sh"
+
 echo ""
 echo "Installation complete!"
 echo ""

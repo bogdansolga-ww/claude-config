@@ -4,6 +4,8 @@ Skills are reusable workflows that guide Claude through tasks with battle-tested
 
 ## Installation
 
+Skills must be installed manually to receive updates from the source repository.
+
 Add to `.claude/settings.json`:
 
 ```json
@@ -17,6 +19,8 @@ Add to `.claude/settings.json`:
   ]
 }
 ```
+
+**Note**: Unlike commands (which are copied), plugins are fetched from their source URL and updated automatically.
 
 ## Top Skills
 
