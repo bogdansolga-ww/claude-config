@@ -43,6 +43,23 @@ scripts/           # Status line, utilities
 - [COMMANDS.md](COMMANDS.md) - Full commands reference
 - [SKILLS.md](SKILLS.md) - Superpowers skills guide
 
+## Git Hooks
+
+TypeScript project hooks for pre-commit (type-check, lint) and pre-push (+ tests, file size).
+
+**Install to a project:**
+```bash
+~/.claude-config/scripts/git-hooks/install.sh /path/to/project
+```
+
+**Run standalone** (without git, for CI or manual checks):
+```bash
+./scripts/git-hooks/pre-commit   # Type-check + lint
+./scripts/git-hooks/pre-push     # Full suite
+```
+
+Hooks auto-detect package manager (bun/pnpm/yarn/npm) and skip missing scripts.
+
 ## Update
 
 ```bash
