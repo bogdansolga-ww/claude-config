@@ -26,13 +26,11 @@ echo ""
 # Create .claude/commands directory
 mkdir -p "$CLAUDE_DIR/commands"
 
-# Copy command categories
+# Copy command categories (additive - preserves existing user commands)
 for category in git pr quality workflow; do
   if [ -d "$REPO_DIR/commands/$category" ]; then
-    if [ -d "$CLAUDE_DIR/commands/$category" ]; then
-      rm -rf "$CLAUDE_DIR/commands/$category"
-    fi
-    cp -R "$REPO_DIR/commands/$category" "$CLAUDE_DIR/commands/$category"
+    mkdir -p "$CLAUDE_DIR/commands/$category"
+    cp -R "$REPO_DIR/commands/$category/." "$CLAUDE_DIR/commands/$category/"
     echo "  Copied commands/$category"
   fi
 done
