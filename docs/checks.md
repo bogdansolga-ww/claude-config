@@ -16,6 +16,8 @@ Pre-commit and pre-push checks for TypeScript projects enforcing architecture pa
 
 ## Architecture Checks
 
+Configurable scripts in `scripts/arch-checks/`. See [arch-checks README](../scripts/arch-checks/README.md) for full configuration options.
+
 ### Hierarchy Check (`check-architecture.sh`)
 Enforces layer separation: **pages → API routes → services → repositories**
 
@@ -24,14 +26,15 @@ Enforces layer separation: **pages → API routes → services → repositories*
 - Services cannot import db directly
 
 ### Schema Location Check (`check-schemas.sh`)
-Ensures Zod schemas are centralized in `@/lib/schemas/`, not defined inline in routes or services.
+Ensures Zod schemas are centralized (default: `@/lib/schemas/`), not defined inline in routes or services.
 
 ### Deep Architecture Check (`check-deep-architecture.sh`)
 Additional validations:
 - Repository layer purity (no HTTP imports)
 - Services throw domain errors (not generic Error)
 - Routes don't import repositories directly
-- Pages don't import server-side code
+- HOF pattern usage (configurable function name)
+- Authentication presence (configurable function name)
 
 ## Integration Methods
 
@@ -39,8 +42,13 @@ Additional validations:
 Hooks run automatically on `git commit` and `git push`.
 
 ```bash
-# Install to a project
+# Install git hooks
 ~/.claude-config/scripts/git-hooks/install.sh /path/to/project
+
+# Install architecture check scripts
+cp ~/.claude-config/scripts/arch-checks/check-*.sh /path/to/project/scripts/
+cp ~/.claude-config/scripts/arch-checks/arch-checks.conf /path/to/project/scripts/
+# Edit scripts/arch-checks.conf for your project structure
 ```
 
 When using Claude Code for git operations, hooks execute automatically.
