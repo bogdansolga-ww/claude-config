@@ -36,6 +36,13 @@ fi
 ln -sf "$REPO_DIR/scripts/status-line.sh" "$CLAUDE_DIR/scripts/status-line.sh"
 echo "  Linked scripts/status-line.sh"
 
+# Symlink git-hooks directory
+if [ -L "$CLAUDE_DIR/scripts/git-hooks" ]; then
+  rm "$CLAUDE_DIR/scripts/git-hooks"
+fi
+ln -sf "$REPO_DIR/scripts/git-hooks" "$CLAUDE_DIR/scripts/git-hooks"
+echo "  Linked scripts/git-hooks/"
+
 # Config files - copy if not exists
 echo ""
 if [ ! -f "$CLAUDE_DIR/config.json" ]; then
@@ -59,5 +66,9 @@ echo "Commands available:"
 echo "  /git:catchup   /git:commit   /git:sync   /git:cleanup"
 echo "  /pr:checks   /pr:create   /pr:review-local   /pr:review   /pr:merge   /pr:code-rabbit"
 echo "  /quality:quick-fix   /quality:find-large-files"
+echo ""
+echo "Git hooks:"
+echo "  Install to a project: ~/.claude/scripts/git-hooks/install.sh /path/to/project"
+echo "  Includes: pre-commit, pre-push (with architecture checks)"
 echo ""
 echo "To update: cd $REPO_DIR && git pull"
